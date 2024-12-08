@@ -15,6 +15,9 @@ import { PlatillosService } from 'src/app/services/platillos.service';
 })
 export class HistorialPage implements OnInit {
   platillosEntregados: any[] = [];
+  filteredPlatillos: any[] = [];  // Platillos filtrados por fecha
+  fechasDisponibles: string[] = [];  // Fechas con platillos entregados
+  selectedDate: string = ''; // Fecha seleccionada
   isProfileMenuOpen: boolean = false; // Controlar si el menú está abierto o cerrado
   isLoggedIn: boolean = false;
   userName: string; // Variable para almacenar el nombre del usuario
@@ -65,7 +68,45 @@ export class HistorialPage implements OnInit {
   }
 
   cargarPlatillosEntregados() {
-    this.platillosEntregados = this.platillosService.getPlatillosByEstado('Terminado');
+    this.platillosService.obtenerEstado('Terminado').subscribe(
+      (data) => {
+        this.platillosEntregados = data;
+        this.filteredPlatillos = data;  // Inicialmente mostramos todos los platillos entregados
+        this.fechasDisponibles = this.getFechasDisponibles(data);
+      },
+      (error) => {
+        console.error('Error al cargar platillos entregados:', error);
+      }
+    );
+  }
+
+  // Obtener las fechas únicas de los platillos entregados
+  getFechasDisponibles(platillos: any[]): string[] {
+    const fechas: string[] = [];
+    platillos.forEach(platillo => {
+      const fecha = new Date(platillo.hora_entregado);
+      const fechaFormateada = fecha.toISOString().split('T')[0]; // Solo la fecha en formato YYYY-MM-DD
+      if (!fechas.includes(fechaFormateada)) {
+        fechas.push(fechaFormateada);
+      }
+    });
+  
+    // Ordenar las fechas de la más reciente a la más antigua
+    return fechas.sort((a, b) => {
+      return new Date(b).getTime() - new Date(a).getTime(); // Ordenar de forma descendente
+    });
+  }
+
+  // Filtrar los platillos por la fecha seleccionada
+  filtrarPorFecha() {
+    if (this.selectedDate) {
+      this.filteredPlatillos = this.platillosEntregados.filter(platillo => {
+        const fechaPlatillo = new Date(platillo.hora_entregado).toISOString().split('T')[0];
+        return fechaPlatillo === this.selectedDate;
+      });
+    } else {
+      this.filteredPlatillos = this.platillosEntregados; // Mostrar todos los platillos si no hay fecha seleccionada
+    }
   }
   
   // Método para cerrar sesión

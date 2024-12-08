@@ -67,32 +67,59 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   cargarPlatillosEnProceso() {
-    this.platillosEnProceso = this.platillosService.getPlatillosByEstado('En Proceso');
+    this.platillosService.obtenerEstado('En Proceso').subscribe(
+      (data) => {
+        this.platillosEnProceso = data;
+      },
+      (error) => {
+        console.error('Error al cargar platillos en proceso:', error);
+      }
+    );
   }
 
   recibirPlatillo() {
-    // Obtener el primer platillo en estado "En Espera"
-    const platilloEnEspera = this.platillosService.getPlatillosByEstado('En Espera')[0];
-  
-    if (platilloEnEspera) {
-      // Cambiar el estado del platillo a "En Proceso"
-      this.platillosService.updateEstadoPlatillo(platilloEnEspera.id, 'En Proceso');
-      this.cargarPlatillosEnProceso(); // Recargar los platillos en proceso
-    } else {
-      // Mensaje si no hay platillos en espera
-      console.log('No hay más platillos en espera');
-    }
+    this.platillosService.obtenerEstado('En Espera').subscribe(
+      (data) => {
+        if (data.length > 0) {
+          const platilloEnEspera = data[0];
+          this.platillosService.actualizarPlatillo(platilloEnEspera.id, { nuevoEstado: 'En Proceso' }).subscribe(
+            () => {
+              this.cargarPlatillosEnProceso();
+            },
+            (error) => {
+              console.error('Error al actualizar el estado del platillo:', error);
+            }
+          );
+        } else {
+          console.log('No hay más platillos en espera');
+        }
+      },
+      (error) => {
+        console.error('Error al obtener platillos en espera:', error);
+      }
+    );
   }
   
-
   marcarComoTerminado(id: number) {
-    this.platillosService.updateEstadoPlatillo(id, 'Terminado');
-    this.cargarPlatillosEnProceso();
+    this.platillosService.actualizarPlatillo(id, { nuevoEstado: 'Terminado' }).subscribe(
+      () => {
+        this.cargarPlatillosEnProceso();
+      },
+      (error) => {
+        console.error('Error al marcar el platillo como terminado:', error);
+      }
+    );
   }
 
   borrarPlatillo(id: number) {
-    this.platillosService.updateEstadoPlatillo(id, 'Eliminado');
-    this.cargarPlatillosEnProceso();
+    this.platillosService.actualizarPlatillo(id, { nuevoEstado: 'Eliminado' }).subscribe(
+      () => {
+        this.cargarPlatillosEnProceso();
+      },
+      (error) => {
+        console.error('Error al borrar el platillo:', error);
+      }
+    );
   }
 
   // Método para cerrar sesión

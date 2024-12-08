@@ -27,6 +27,22 @@ ion-item {
     color: gray;
   }
   
+  .centered-item {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  ion-label {
+    flex-grow: 1;
+    text-align: center;
+  }
+  
+  ion-select {
+    width: 50%; /* 50% del ancho de la pantalla */
+    text-align: center;
+  }
+  
 .custom-modal {
     position: fixed; /* Posicionamiento fijo */
     top: 0;
