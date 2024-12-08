@@ -26,13 +26,24 @@
 
 <div class="separator"></div> <!-- Línea separadora -->
 
+<ion-toolbar>
+  <ion-item class="centered-item">
+    <ion-label>Seleccionar fecha:</ion-label>
+    <ion-select [(ngModel)]="selectedDate" (ionChange)="filtrarPorFecha()" placeholder="Elige una fecha">
+      <ion-select-option *ngFor="let fecha of fechasDisponibles" [value]="fecha">
+        {{ fecha | date: 'shortDate' }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+</ion-toolbar>
+
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let platillo of platillosEntregados">
+    <ion-item *ngFor="let platillo of filteredPlatillos">
       <ion-icon slot="start" name="checkmark-circle-outline" color="success"></ion-icon>
       <ion-label>
         <h2>{{ platillo.nombre }}</h2>
-        <p>Entregado: {{ platillo.horaEntregado | date: 'shortTime' }}</p>
+        <p>Entregado: {{ platillo.hora_entregado | date: 'shortDate' }} {{ platillo.hora_entregado | date: 'shortTime' }}</p>
       </ion-label>
     </ion-item>
   </ion-list>
